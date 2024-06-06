@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-stomp/stomp/v3"
 	"github.com/go-stomp/stomp/v3/frame"
-	"github.com/go-stomp/stomp/v3/server/client"
-	"github.com/go-stomp/stomp/v3/server/queue"
-	"github.com/go-stomp/stomp/v3/server/topic"
+	"github.com/drio-ai/stomp/v3/server/client"
+	"github.com/drio-ai/stomp/v3/server/queue"
+	"github.com/drio-ai/stomp/v3/server/topic"
 )
 
 type requestProcessor struct {

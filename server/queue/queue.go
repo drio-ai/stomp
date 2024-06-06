@@ -5,7 +5,7 @@ package queue
 
 import (
 	"github.com/go-stomp/stomp/v3/frame"
-	"github.com/go-stomp/stomp/v3/server/client"
+	"github.com/drio-ai/stomp/v3/server/client"
 )
 
 // Queue for storing message frames.
