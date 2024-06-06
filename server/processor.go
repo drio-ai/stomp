@@ -36,6 +36,12 @@ func newRequestProcessor(server *Server) *requestProcessor {
 	return proc
 }
 
+func (proc *requestProcessor) ServeWebSocketConnection(rw net.Conn) error {
+	config := newConfig(proc.server)
+	_ = client.NewConn(config, rw, proc.ch)
+	return nil
+}
+
 func (proc *requestProcessor) Serve(l net.Listener) error {
 	go proc.Listen(l)
 
