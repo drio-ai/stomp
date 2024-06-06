@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-stomp/stomp/v3/frame"
-	"github.com/go-stomp/stomp/v3/internal/log"
+	"github.com/go-stomp/stomp/v3/log"
 )
 
 // ConnOptions is an opaque structure used to collection options
