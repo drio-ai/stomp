@@ -21,9 +21,14 @@ type requestProcessor struct {
 }
 
 func newRequestProcessor(server *Server) *requestProcessor {
+	ch := make(chan client.Request, 128)
+	return newRequestProcessorWithRequestChannel(server, ch)
+}
+
+func newRequestProcessorWithRequestChannel(server *Server, ch chan client.Request) *requestProcessor {
 	proc := &requestProcessor{
 		server: server,
-		ch:     make(chan client.Request, 128),
+		ch:     ch,
 		tm:     topic.NewManager(),
 	}
 
