@@ -26,7 +26,8 @@ var (
 // A STOMP frame is rejected if its command and header section exceed
 // the buffer size.
 type Reader struct {
-	reader *bufio.Reader
+	reader      *bufio.Reader
+	constraints *Constraints
 }
 
 // NewReader creates a Reader with the default underlying buffer size.
@@ -89,7 +90,16 @@ func (r *Reader) Read() (*Frame, error) {
 			return nil, ErrInvalidFrameFormat
 		}
 
+		// Name and value limits check is done after reading the buffer,
+		// decoding and converting it to a string. We would ideally like
+		// to do this earlier but, limits must be enforced on the decoded
+		// value. Hopefully the limits are not set so high that reading
+		// a single header will cause the server to crash.
 		name, err := unencodeValue(headerSlice[0:index])
+		if err != nil {
+			return nil, err
+		}
+		err = r.constraints.ValidateHeaderNameLen(index)
 		if err != nil {
 			return nil, err
 		}
@@ -97,10 +107,18 @@ func (r *Reader) Read() (*Frame, error) {
 		if err != nil {
 			return nil, err
 		}
+		err = r.constraints.ValidateHeaderValueLen(len(value))
+		if err != nil {
+			return nil, err
+		}
 
 		//println("   ", name, ":", value)
 
 		f.Header.Add(name, value)
+		err = r.constraints.ValidateMaxHeaders(f)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// get content length from the headers
@@ -133,6 +151,16 @@ func (r *Reader) Read() (*Frame, error) {
 		}
 		// remove trailing null
 		f.Body = f.Body[0 : len(f.Body)-1]
+	}
+
+	err = r.constraints.ValidateBodyLen(len(f.Body))
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.constraints.ValidateContentType(f)
+	if err != nil {
+		return nil, err
 	}
 
 	// pass back frame
