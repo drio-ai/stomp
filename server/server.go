@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-stomp/stomp/v3"
 	"github.com/go-stomp/stomp/v3/log"
+	"github.com/go-stomp/stomp/v3/server/client"
 )
 
 // The STOMP server has the concept of queues and topics. A message
@@ -89,11 +90,20 @@ func (s *Server) Serve(l net.Listener) error {
 }
 
 // Serve WebSocket connections. Will receive a net.Conn object.
-func (s *Server) ServeWebSocketConnection(rw net.Conn) error {
+// Caller can pass a channel through which it will receive requests sent by the client.
+func (s *Server) ServeWebSocketConnection(rw net.Conn, ch chan client.Request) error {
 	if s.Log == nil {
 		s.Log = log.StdLogger{}
 	}
 
-	proc := newRequestProcessor(s)
+	var proc *requestProcessor
+	if ch == nil {
+		// Caller is not interested in receiving requests from client
+		proc = newRequestProcessor(s)
+	} else {
+		// Caller is interested in receiving requests from client
+		proc = newRequestProcessorWithRequestChannel(s, ch)
+	}
+
 	return proc.ServeWebSocketConnection(rw)
 }
