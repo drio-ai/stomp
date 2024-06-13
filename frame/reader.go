@@ -41,6 +41,13 @@ func NewReaderSize(reader io.Reader, bufferSize int) *Reader {
 	return &Reader{reader: bufio.NewReaderSize(reader, bufferSize)}
 }
 
+// Set reader constraints
+func (r *Reader) SetReaderConstraints(c *Constraints) {
+	if r != nil {
+		r.constraints = c
+	}
+}
+
 // Read a STOMP frame from the input. If the input contains one
 // or more heart-beat characters and no frame, then nil will
 // be returned for the frame. Calling programs should always check

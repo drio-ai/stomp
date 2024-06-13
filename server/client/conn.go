@@ -116,6 +116,10 @@ func (c *Conn) sendImmediately(f *frame.Frame) error {
 // this connection on the one go-routine and avoids race conditions.
 func (c *Conn) readLoop() {
 	reader := frame.NewReader(c.rw)
+	if constraints := c.config.Constraints(); constraints != nil {
+		reader.SetReaderConstraints(constraints)
+	}
+
 	expectingConnect := true
 	readTimeout := time.Duration(0)
 	for {

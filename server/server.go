@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-stomp/stomp/v3"
+	"github.com/go-stomp/stomp/v3/frame"
 	"github.com/go-stomp/stomp/v3/log"
 	"github.com/go-stomp/stomp/v3/server/client"
 )
@@ -41,10 +42,12 @@ type Authenticator interface {
 
 // A Server defines parameters for running a STOMP server.
 type Server struct {
-	Addr          string        // TCP address to listen on, DefaultAddr if empty
-	Authenticator Authenticator // Authenticates login/passcodes. If nil no authentication is performed
-	QueueStorage  QueueStorage  // Implementation of queue storage. If nil, in-memory queues are used.
-	HeartBeat     time.Duration // Preferred value for heart-beat read/write timeout, if zero, then DefaultHeartBeat.
+	Addr          string              // TCP address to listen on, DefaultAddr if empty
+	Authenticator Authenticator       // Authenticates login/passcodes. If nil no authentication is performed
+	QueueStorage  QueueStorage        // Implementation of queue storage. If nil, in-memory queues are used.
+	HeartBeat     time.Duration       // Preferred value for heart-beat read/write timeout, if zero, then DefaultHeartBeat.
+	Constraints   *frame.Constraints  // Frame constraints to apply
+	ReqChannel    chan client.Request // Channel on which caller will receive updates from client
 	Log           stomp.Logger
 }
 
@@ -90,20 +93,12 @@ func (s *Server) Serve(l net.Listener) error {
 }
 
 // Serve WebSocket connections. Will receive a net.Conn object.
-// Caller can pass a channel through which it will receive requests sent by the client.
-func (s *Server) ServeWebSocketConnection(rw net.Conn, ch chan client.Request) error {
+func (s *Server) ServeWebSocketConnection(rw net.Conn) error {
 	if s.Log == nil {
 		s.Log = log.StdLogger{}
 	}
 
-	var proc *requestProcessor
-	if ch == nil {
-		// Caller is not interested in receiving requests from client
-		proc = newRequestProcessor(s)
-	} else {
-		// Caller is interested in receiving requests from client
-		proc = newRequestProcessorWithRequestChannel(s, ch)
-	}
+	proc := newRequestProcessor(s)
 
 	return proc.ServeWebSocketConnection(rw)
 }

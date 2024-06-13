@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-stomp/stomp/v3"
+	"github.com/go-stomp/stomp/v3/frame"
 )
 
 // Contains information the client package needs from the
@@ -22,4 +23,7 @@ type Config interface {
 
 	// Logger provides the logger for a client
 	Logger() stomp.Logger
+
+	// Returns frame constraints that must be applied
+	Constraints() *frame.Constraints
 }
