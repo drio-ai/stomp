@@ -81,7 +81,7 @@ func (c *Constraints) ValidateHeaderNameLen(nLen int) error {
 
 // Ensures header value length does not exceed limit
 func (c *Constraints) ValidateHeaderValueLen(vLen int) error {
-	if c != nil && c.Enabled && uint32(vLen) <= c.MaxHeaderValueSize {
+	if c != nil && c.Enabled && uint32(vLen) > c.MaxHeaderValueSize {
 		return ErrHeaderValueTooLarge
 	}
 
