@@ -21,14 +21,13 @@ type requestProcessor struct {
 }
 
 func newRequestProcessor(server *Server) *requestProcessor {
-	ch := make(chan client.Request, 128)
-	return newRequestProcessorWithRequestChannel(server, ch)
-}
+	if server.ReqChannel == nil {
+		server.ReqChannel = make(chan client.Request, 128)
+	}
 
-func newRequestProcessorWithRequestChannel(server *Server, ch chan client.Request) *requestProcessor {
 	proc := &requestProcessor{
 		server: server,
-		ch:     ch,
+		ch:     server.ReqChannel,
 		tm:     topic.NewManager(),
 	}
 
@@ -166,4 +165,8 @@ func (c *config) Authenticate(login, passcode string) bool {
 
 func (c *config) Logger() stomp.Logger {
 	return c.server.Log
+}
+
+func (c *config) Constraints() *frame.Constraints {
+	return c.server.Constraints
 }
