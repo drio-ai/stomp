@@ -657,6 +657,13 @@ func (c *Conn) handleUnsubscribe(f *frame.Frame) error {
 
 	// tell the upper layer of the unsubscribe
 	c.requestChannel <- Request{Op: UnsubscribeOp, Sub: sub}
+
+	// Send a receipt and remove the header
+	err := c.sendReceiptImmediately(f)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
