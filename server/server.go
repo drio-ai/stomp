@@ -93,12 +93,12 @@ func (s *Server) Serve(l net.Listener) error {
 }
 
 // Serve WebSocket connections. Will receive a net.Conn object.
-func (s *Server) ServeWebSocketConnection(rw net.Conn) error {
+func (s *Server) ServeWebSocketConnection(rw net.Conn) (*client.Conn, error) {
 	if s.Log == nil {
 		s.Log = log.StdLogger{}
 	}
 
 	proc := newRequestProcessor(s)
 
-	return proc.ServeWebSocketConnection(rw)
+	return proc.ServeWebSocketConnection(rw), nil
 }

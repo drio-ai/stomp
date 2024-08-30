@@ -39,10 +39,10 @@ func newRequestProcessor(server *Server) *requestProcessor {
 	return proc
 }
 
-func (proc *requestProcessor) ServeWebSocketConnection(rw net.Conn) error {
+func (proc *requestProcessor) ServeWebSocketConnection(rw net.Conn) *client.Conn {
 	config := newConfig(proc.server)
-	_ = client.NewConn(config, rw, proc.ch)
-	return nil
+	conn := client.NewConn(config, rw, proc.ch)
+	return conn
 }
 
 func (proc *requestProcessor) Serve(l net.Listener) error {
