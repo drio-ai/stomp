@@ -637,7 +637,7 @@ func (c *Conn) handleSubscribe(f *frame.Frame) error {
 	c.subs[id] = sub
 
 	// send information about new subscription to upper layer
-	c.requestChannel <- Request{Op: SubscribeOp, Sub: sub}
+	c.requestChannel <- Request{Op: SubscribeOp, Sub: sub, Frame: f}
 	return nil
 }
 
